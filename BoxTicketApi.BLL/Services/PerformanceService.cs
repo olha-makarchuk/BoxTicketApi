@@ -20,31 +20,72 @@ namespace BoxTicketApi.BLL.Services
             _repository = repository;
         }
 
-        public Task<PerformanceResponse> GetAllPerformances()
+        public async Task<List<PerformanceResponse>> GetAllPerformances()
         {
-            throw new NotImplementedException();
+            var performances = await _repository.GetAllAsync();
+
+            return CreateList(performances);
         }
 
-        public Task<List<Performance>> GetPerformancesByDate(PerformancesByDateRequest request)
+        public async Task<List<PerformanceResponse>> GetPerformancesByAuthor(PerformancesByAuthorRequest request)
         {
-            DateOnly dateOnly = new(re)
-            var performances = _repository.GetPerformancesByDate(request.dateTime);
-            return performances;
+            var performances = await _repository.GetPerformancesByAuthor(request.idAuthor);
+            if(performances.Count == 0)
+            {
+                throw new Exception($"Performances with author id {request.idAuthor} not found");
+            }
+
+            return CreateList(performances);
         }
 
-        public Task<Performance> GetPerformancesByGenre(PerformancesByGenreRequest request)
+        public async Task<List<PerformanceResponse>> GetPerformancesByDate(PerformancesByDateRequest request)
         {
-            throw new NotImplementedException();
+            var performances = await _repository.GetPerformancesByDate(request.dateTime);
+            if (performances.Count == 0)
+            {
+                throw new Exception($"Performances with date {request.dateTime} not found");
+            }
+
+            return CreateList(performances);
         }
 
-        public Task<PerformanceResponse> GetPerformancesByName(PerformancesByNameRequest request)
+        public async Task<List<PerformanceResponse>> GetPerformancesByGenre(PerformancesByGenreRequest request)
         {
-            throw new NotImplementedException();
+            var performances = await _repository.GetPerformancesByGenre(request.idGenre);
+            if (performances.Count == 0)
+            {
+                throw new Exception($"Performances with genre id {request.idGenre} not found");
+            }
+
+            return CreateList(performances);
         }
 
-        Task<PerformanceResponse> IPerformanceService.GetPerformancesByAuthor(PerformancesByAuthorRequest request)
+        public async Task<List<PerformanceResponse>> GetPerformancesByName(PerformancesByNameRequest request)
         {
-            throw new NotImplementedException();
+            var performances = await _repository.GetPerformancesByName(request.Name);
+            if (performances.Count == 0)
+            {
+                throw new Exception($"Performances with name {request.Name} not found");
+            }
+
+            return CreateList(performances);
+        }
+
+        private List<PerformanceResponse> CreateList(List<Performance> performances)
+        {
+            List<PerformanceResponse> list = new();
+
+            foreach (var p in performances)
+            {
+                PerformanceResponse responseItem = new PerformanceResponse();
+                responseItem.IdAuthor = p.IdAuthor;
+                responseItem.IdPerformance = p.Id;
+                responseItem.IdGenre = p.IdGenre;
+                responseItem.DateTimeEvent = p.DateTimeEvent;
+                responseItem.PerformanceName = p.PerformanceName;
+                list.Add(responseItem);
+            }
+            return list;
         }
     }
 }

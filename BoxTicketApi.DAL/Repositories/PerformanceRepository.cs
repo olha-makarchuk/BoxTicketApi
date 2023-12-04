@@ -26,10 +26,9 @@ namespace BoxTicketApi.DAL.Repositories
             return performances;
         }
 
-        public Task<List<Performance>> GetPerformancesByDate(DateOnly date)
+        public Task<List<Performance>> GetPerformancesByDate(DateTime date)
         {
-            var performances = _context.Performances
-                .Where(p => p.DateTimeEvent == date.ToDateTime(TimeOnly.Parse("00:00 PM")))
+            var performances = _context.Performances//where time
                 .Include(p => p.IdGenreNavigation)
                 .Include(p => p.IdAuthorNavigation)
                 .ToListAsync();
@@ -46,9 +45,9 @@ namespace BoxTicketApi.DAL.Repositories
             return performances;
         }
 
-        public Task<List<Performance>> GetPerformancesByName(string name)
+        public async Task<List<Performance>> GetPerformancesByName(string name)
         {
-            var performances = _context.Performances
+            var performances = await _context.Performances
                 .Where(p => p.PerformanceName == name)
                 .Include(p => p.IdGenreNavigation)
                 .Include(p => p.IdAuthorNavigation)

@@ -1,6 +1,7 @@
 ﻿using BoxTicketApi.BLL.Requests.Ticket;
 using BoxTicketApi.BLL.Responses.Ticket;
 using BoxTicketApi.BLL.Services.Base;
+using BoxTicketApi.DAL.Repositories.Base;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +12,16 @@ namespace BoxTicketApi.BLL.Services
 {
     public class TicketService : ITicketService
     {
+        private ITicketRepository _ticketRepository;
+
+        public TicketService(ITicketRepository ticketRepository)
+        {
+            _ticketRepository = ticketRepository;
+        }
+
         public Task<TicketResponse> BookTicket(TicketReqest reqest)
         {
-            throw new NotImplementedException();
+            _ticketRepository.BookTicket(reqest)
         }
 
         public Task<TicketResponse> BuyBookedTicket(TicketByIdReqest reqest)

@@ -12,6 +12,6 @@ namespace BoxTicketApi.DAL.Repositories.Base
         Task<List<Performance>> GetPerformancesByAuthor(int idAuthor);
         Task<List<Performance>> GetPerformancesByGenre(int idGenre);
         Task<List<Performance>> GetPerformancesByName(string name);
-        Task<List<Performance>> GetPerformancesByDate(DateOnly date);
+        Task<List<Performance>> GetPerformancesByDate(DateTime date);
     }
 }

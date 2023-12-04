@@ -11,10 +11,10 @@ namespace BoxTicketApi.BLL.Services.Base
 {
     public interface IPerformanceService
     {
-        Task<PerformanceResponse> GetAllPerformances();
-        Task<PerformanceResponse> GetPerformancesByAuthor(PerformancesByAuthorRequest request);
-        Task<Performance> GetPerformancesByGenre(PerformancesByGenreRequest request);
-        Task<PerformanceResponse> GetPerformancesByName(PerformancesByNameRequest request);
-        Task<List<Performance>> GetPerformancesByDate(PerformancesByDateRequest request);
+        Task<List<PerformanceResponse>> GetAllPerformances();
+        Task<List<PerformanceResponse>> GetPerformancesByAuthor(PerformancesByAuthorRequest request);
+        Task<List<PerformanceResponse>> GetPerformancesByGenre(PerformancesByGenreRequest request);
+        Task<List<PerformanceResponse>> GetPerformancesByName(PerformancesByNameRequest request);
+        Task<List<PerformanceResponse>> GetPerformancesByDate(PerformancesByDateRequest request);
     }
 }

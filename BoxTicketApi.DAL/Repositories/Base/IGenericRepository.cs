@@ -9,7 +9,7 @@ namespace BoxTicketApi.DAL.Repositories.Base
 {
     public interface IGenericRepository<T> where T : BaseEntity
     {
-        Task<IEnumerable<T>> GetAllAsync();
+        Task<List<T>> GetAllAsync();
 
         Task<T?> GetByIdAsync(int id);
 

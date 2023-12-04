@@ -2,7 +2,9 @@
 using BoxTicketApi.BLL.Requests.Performance;
 using BoxTicketApi.BLL.Services;
 using BoxTicketApi.BLL.Services.Base;
+using BoxTicketApi.DAL.Contexts;
 using Microsoft.AspNetCore.Mvc;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BoxTicketApi.Controllers
 {
@@ -27,7 +29,7 @@ namespace BoxTicketApi.Controllers
                 PerformancesByDateRequest request = new();
                 request.Date = date;
 
-                var result = await _performanceService.GetPerformancesByDate(request.dateTime);
+                var result = await _performanceService.GetPerformancesByDate(request);
 
                 return Ok(result);
             }
@@ -44,25 +46,57 @@ namespace BoxTicketApi.Controllers
         [HttpPost("PerformancesByAuthor")]
         public async Task<IActionResult> GetPerformancesByAuthor(PerformancesByAuthorRequest request)
         {
-            return Ok();
+            try
+            {
+                var result = await _performanceService.GetPerformancesByAuthor(request);
+
+                return Ok(result);
+            }
+
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
         }
 
         [HttpPost("PerformancesByGenre")]
         public async Task<IActionResult> GetPerformancesByGenre(PerformancesByGenreRequest request)
         {
-            return Ok();
+            try
+            {
+                var result = await _performanceService.GetPerformancesByGenre(request);
+
+                return Ok(result);
+            }
+
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
         }
 
         [HttpPost("PerformancesByName")]
         public async Task<IActionResult> GetPerformancesByName(PerformancesByNameRequest request)
         {
-            return Ok();
+            try
+            {
+                var result = await _performanceService.GetPerformancesByName(request);
+
+                return Ok(result);
+            }
+
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
         }
 
         [HttpPost("AllPerformances")]
-        public async Task<IActionResult> GetAllPerformances(PerformancesByNameRequest request)
+        public async Task<IActionResult> GetAllPerformances()
         {
-            return Ok();
+            var result = await _performanceService.GetAllPerformances();
+            return Ok(result);
         }
+
     }
 }
