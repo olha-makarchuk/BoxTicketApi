@@ -144,7 +144,7 @@ public partial class BoxTicketContext : DbContext
 
             entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.Tickets)
                 .HasForeignKey(d => d.IdUser)
-                .HasConstraintName("FK_Ticket_UserInfo");
+                .HasConstraintName("FK_Ticket_UserAccount");
         });
 
         modelBuilder.Entity<TypeOfTicket>(entity =>
@@ -174,13 +174,10 @@ public partial class BoxTicketContext : DbContext
             entity.Property(e => e.MiddleName)
                 .HasMaxLength(20)
                 .IsUnicode(false);
-            entity.Property(e => e.PasswordHash)
-                .HasMaxLength(50)
-                .IsUnicode(false);
 
             entity.HasOne(d => d.IdRoleNavigation).WithMany(p => p.UserAccounts)
                 .HasForeignKey(d => d.IdRole)
-                .HasConstraintName("FK_UserInfo_RoleUser");
+                .HasConstraintName("FK_UserAccount_RoleUser");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -15,7 +15,9 @@ public partial class UserAccount : BaseEntity
 
     public string Email { get; set; } = null!;
 
-    public string PasswordHash { get; set; } = null!;
+    public byte[] PasswordHash { get; set; } = null!;
+
+    public byte[] PasswordSalt { get; set; } = null!;
 
     public int IdRole { get; set; }
 

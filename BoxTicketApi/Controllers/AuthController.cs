@@ -49,28 +49,30 @@ namespace BoxTicketApi.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
-        /*
+        
         [HttpPost("login")]
-        public async Task<ActionResult<string>> Login(UserDto request)
+        public async Task<ActionResult<string>> Login(SignInRequest request)
         {
-            if (user.Username != request.Username)
+            try
             {
-                return BadRequest("User not found.");
-            }
+                var result = await _userService.Login(request);
 
-            if (!VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
+                // Ваш сервіс повертає AuthResponse, тому можна просто його повернути відповідь
+                return Ok(result);
+            }
+            catch (Exception ex)
             {
-                return BadRequest("Wrong password.");
+                // Логуємо помилку або повертаємо відповідний статус код з текстом помилки
+                return StatusCode(500, $"An error occurred: {ex.Message}");
             }
-
-            string token = CreateToken(user);
-
-            var refreshToken = GenerateRefreshToken();
-            SetRefreshToken(refreshToken);
-
-            return Ok(token);
         }
 
+        [HttpGet(Name = "getInform"), Authorize(Roles = "Standart")]
+        public ActionResult<string> GetInform()
+        {
+            return "Все ОК";
+        }
+        /*
         [HttpPost("refresh-token")]
         public async Task<ActionResult<string>> RefreshToken()
         {
