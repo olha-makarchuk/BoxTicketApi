@@ -24,7 +24,7 @@ namespace BoxTicketApi.BLL.Services
     public class UserService : IUserService
     {
         private UserAccount user = new(); 
-        private readonly UserRepository _repository;
+        private UserRepository _repository;
         private IConfiguration _config;
 
         //private readonly IMapper _mapper;
