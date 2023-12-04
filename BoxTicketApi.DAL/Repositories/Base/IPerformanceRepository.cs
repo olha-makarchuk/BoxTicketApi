@@ -9,9 +9,9 @@ namespace BoxTicketApi.DAL.Repositories.Base
 {
     public interface IPerformanceRepository : IGenericRepository<Performance>
     {
-        Task<List<Performance>> GetPerformanceByAuthor(int idAuthor);
-        Task<List<Performance>> GetPerformanceByGenre(int idGenre);
-        Task<List<Performance>> GetPerformanceByName(string name);
-        Task<List<Performance>> GetPerformanceByDate(DateOnly date);
+        Task<List<Performance>> GetPerformancesByAuthor(int idAuthor);
+        Task<List<Performance>> GetPerformancesByGenre(int idGenre);
+        Task<List<Performance>> GetPerformancesByName(string name);
+        Task<List<Performance>> GetPerformancesByDate(DateOnly date);
     }
 }

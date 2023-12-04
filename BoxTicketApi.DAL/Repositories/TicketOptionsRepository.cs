@@ -15,8 +15,9 @@ namespace BoxTicketApi.DAL.Repositories
         {
         }
 
-        public Task<List<AllTicket>> GetAllAvailableSeats(int idAllTicket)
+        public Task<List<AllTicket>> GetAllAvailableSeats(int idOption)
         {
+
             throw new NotImplementedException();
         }
 
