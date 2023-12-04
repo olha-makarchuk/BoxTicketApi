@@ -9,6 +9,7 @@ using BoxTicketApi.DAL.Repositories;
 using BoxTicketApi.DAL.Repositories.Base;
 using BoxTicketApi.DAL.Contexts;
 using Microsoft.EntityFrameworkCore;
+using BoxTicketApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,8 +22,11 @@ builder.Services.AddDbContext<BoxTicketContext>(options =>
         ("ConnectionString: DefaultConnection").Value);
 });
 builder.Services.AddScoped<UserRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<PerformanceRepository>();
+
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPerformanceService, PerformanceService>();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddScoped<IUserService, UserService>();
