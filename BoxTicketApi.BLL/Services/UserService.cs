@@ -1,11 +1,14 @@
 ﻿using AutoMapper;
+using Azure;
 using Azure.Core;
 using BoxTicketApi.BLL.Requests.Auth;
 using BoxTicketApi.BLL.Responses.Auth;
 using BoxTicketApi.BLL.Services.Base;
 using BoxTicketApi.DAL.Contexts;
 using BoxTicketApi.DAL.Repositories;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -26,44 +29,17 @@ namespace BoxTicketApi.BLL.Services
         private UserAccount user = new(); 
         private UserRepository _repository;
         private IConfiguration _config;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         //private readonly IMapper _mapper;
-        public UserService(UserRepository repository, IConfiguration config/*, IMapper mapper*/)
+        public UserService(UserRepository repository, IConfiguration config/*, IMapper mapper*/, IHttpContextAccessor httpContextAccessor)
         {
             _repository = repository;
             _config = config;
+            _httpContextAccessor = httpContextAccessor;
             //_mapper = mapper;
         }
 
-
-        public async Task<AuthResponse> Login(SignInRequest request)
-        {
-            var existingUser = await _repository.GetUserByEmailAsync(request.Email);
-
-            if (existingUser == null)
-            {
-                throw new Exception($"User doesn't exist with this email: {request.Email}.");
-            }
-
-            if (!VerifyPasswordHash(request.Password, existingUser.PasswordHash, existingUser.PasswordSalt))
-            {
-                throw new Exception("Wrong password.");
-            }
-
-            string token = CreateToken(existingUser, "Standart");
-
-            //var refreshToken = GenerateRefreshToken();
-            //SetRefreshToken(refreshToken);
-
-            AuthResponse response = new();
-            response.AccessToken = token;
-            return response;
-        }
-
-        Task<AuthResponse> IUserService.RegisterAdmin(SignUpRequest user)
-        {
-            throw new NotImplementedException();
-        }
 
         public async Task<AuthResponse> RegisterUserAsync(SignUpRequest request)
         {
@@ -89,13 +65,36 @@ namespace BoxTicketApi.BLL.Services
             return response;
         }
 
+        public async Task<AuthResponse> Login(SignInRequest request)
+        {
+            var existingUser = await _repository.GetUserByEmailAsync(request.Email);
+
+            if (existingUser == null)
+            {
+                throw new Exception($"User doesn't exist with this email: {request.Email}.");
+            }
+
+            if (!VerifyPasswordHash(request.Password, existingUser.PasswordHash, existingUser.PasswordSalt))
+            {
+                throw new Exception("Wrong password.");
+            }
+
+            string token = CreateToken(existingUser, "Standart");
+            SetCookie("UserId", existingUser.Id.ToString());
+
+            AuthResponse response = new();
+            response.AccessToken = token;
+            return response;
+        }
+
         private string CreateToken(UserAccount user, string role)
         {
             List<Claim> claims = new List<Claim>
             {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Surname, user.LastName),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, role)
+                new Claim(ClaimTypes.Role, role),
             };
 
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
@@ -113,6 +112,18 @@ namespace BoxTicketApi.BLL.Services
             return jwt;
         }
 
+        private void SetCookie(string key, string value)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                Expires = DateTime.UtcNow.AddDays(1),
+                HttpOnly = true,
+                SameSite = SameSiteMode.Strict,
+                Secure = true
+            };
+
+            _httpContextAccessor.HttpContext.Response.Cookies.Append(key, value, cookieOptions);
+        }
 
         private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {

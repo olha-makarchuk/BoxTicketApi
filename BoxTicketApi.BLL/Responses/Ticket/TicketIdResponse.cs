@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BoxTicketApi.BLL.Requests.TicketOptions
+namespace BoxTicketApi.BLL.Responses.Ticket
 {
-    public class GetOptionsRequest
+    public class TicketIdResponse
     {
-        public int IdPerformance {  get; set; }
+        public int idTicket {  get; set; }
     }
 }

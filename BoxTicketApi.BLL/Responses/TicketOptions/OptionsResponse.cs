@@ -8,5 +8,12 @@ namespace BoxTicketApi.BLL.Responses.TicketOptions
 {
     public class OptionsResponse
     {
+        public int Id {  get; set; }
+        public string NamePerformance { get; set; }
+        public string TypeName {  get; set; }
+        public int Price { get; set; }
+        public int CountOfSeats { get; set; }
+
+        public List<int> Seats { get; set; }=new();
     }
 }

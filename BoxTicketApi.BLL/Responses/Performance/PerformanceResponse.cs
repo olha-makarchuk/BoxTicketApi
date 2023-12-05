@@ -15,11 +15,7 @@ namespace BoxTicketApi.BLL.Responses.Performance
 
         public int IdGenre { get; set; }
 
-        //public string GenreName { get; set; } = string.Empty;
-
         public int IdAuthor { get; set; }
-
-        //public string AuthorName { get; set; } = string.Empty;
 
         public DateTime DateTimeEvent { get; set; }
 

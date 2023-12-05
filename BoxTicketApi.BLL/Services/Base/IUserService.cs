@@ -11,7 +11,6 @@ namespace BoxTicketApi.BLL.Services.Base
     public interface IUserService
     {
         Task<AuthResponse> RegisterUserAsync(SignUpRequest user);
-        Task<AuthResponse> RegisterAdmin(SignUpRequest user);
         Task<AuthResponse> Login(SignInRequest user);
     }
 }

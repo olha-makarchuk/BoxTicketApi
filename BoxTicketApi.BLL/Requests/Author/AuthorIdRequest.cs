@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BoxTicketApi.BLL.Requests.TicketOptions
+namespace BoxTicketApi.BLL.Requests.Author
 {
-    public class GetOptionsRequest
+    internal class AuthorIdRequest
     {
-        public int IdPerformance {  get; set; }
     }
 }
