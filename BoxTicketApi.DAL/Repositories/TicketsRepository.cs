@@ -1,6 +1,7 @@
 ﻿using BoxTicketApi.DAL.Contexts;
 using BoxTicketApi.DAL.Entities;
 using BoxTicketApi.DAL.Repositories.Base;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,25 +16,24 @@ namespace BoxTicketApi.DAL.Repositories
         {
         }
 
-        public Task<Ticket> BookTicket(int idUser, int idAllTicket, int seatNumber)
+        public async Task<List<int>> GetBoughtSeatsByType(int performanceId, int idOption)
         {
+            var purchasedSeats = await _context.Tickets
+                .Where(t => t.IdAllTicketsNavigation.IdPerformance == performanceId && t.IdAllTicketsNavigation.IdType == idOption)
+                .Select(t => t.SeatNumber)
+                .ToListAsync();
 
-            throw new NotImplementedException();
+            return purchasedSeats;
         }
-
-        public Task<Ticket> BuyBookedTicket(int idTicket)
+        public async Task<List<Ticket>> GetAllTicketsById(int IdUser)
         {
-            throw new NotImplementedException();
-        }
+            var tickets = await _context.Tickets
+                .Where(t=> t.IdUser == IdUser)
+                .Include(t => t.IdAllTicketsNavigation.IdPerformanceNavigation)
+                .Include(t => t.IdStatusNavigation)
+                .ToListAsync();
 
-        public Task<Ticket> BuyTicket(int idUser, int idAllTicket, int seatNumber)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Ticket> CancelBookedTicket(int idTicket)
-        {
-            throw new NotImplementedException();
+            return tickets;
         }
     }
 }

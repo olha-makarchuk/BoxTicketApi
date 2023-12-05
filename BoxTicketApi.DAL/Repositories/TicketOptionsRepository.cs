@@ -1,6 +1,7 @@
 ﻿using BoxTicketApi.DAL.Contexts;
 using BoxTicketApi.DAL.Entities;
 using BoxTicketApi.DAL.Repositories.Base;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,15 +16,23 @@ namespace BoxTicketApi.DAL.Repositories
         {
         }
 
-        public Task<List<AllTicket>> GetAllAvailableSeats(int idOption)
+        public async Task<List<AllTicket>> GetAllTickets(int performanceId)
         {
-
-            throw new NotImplementedException();
+            var allTickets = await _context.AllTickets
+                .Where(t => t.IdPerformance == performanceId)
+                .Include(t => t.IdTypeNavigation)
+                .Include(t => t.IdPerformanceNavigation)
+                .ToListAsync();
+            return allTickets;
         }
-
-        public Task<List<AllTicket>> GetAllAvailableTicketTypes(int idPerformance)
+        public async Task<List<int>> GetBoughtSeatsByType(int performanceId, int idOption)
         {
-            throw new NotImplementedException();
+            var purchasedSeats = await _context.Tickets
+                .Where(t => t.IdAllTicketsNavigation.IdPerformance == performanceId && t.IdAllTicketsNavigation.IdType == idOption)
+                .Select(t => t.SeatNumber)
+                .ToListAsync();
+
+            return purchasedSeats;
         }
     }
 }

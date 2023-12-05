@@ -28,7 +28,8 @@ namespace BoxTicketApi.DAL.Repositories
 
         public Task<List<Performance>> GetPerformancesByDate(DateTime date)
         {
-            var performances = _context.Performances//where time
+            var performances = _context.Performances
+                .Where(p => p.DateTimeEvent.Date == date.Date)
                 .Include(p => p.IdGenreNavigation)
                 .Include(p => p.IdAuthorNavigation)
                 .ToListAsync();

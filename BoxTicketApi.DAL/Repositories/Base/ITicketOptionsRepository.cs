@@ -9,7 +9,7 @@ namespace BoxTicketApi.DAL.Repositories.Base
 {
     public interface ITicketOptionsRepository : IGenericRepository<AllTicket>
     {
-        Task<List<AllTicket>> GetAllAvailableTicketTypes(int idPerformance);
-        Task<List<AllTicket>> GetAllAvailableSeats(int idOption);
+        Task<List<AllTicket>> GetAllTickets(int performanceId);
+        Task<List<int>> GetBoughtSeatsByType(int performanceId, int idOption);
     }
 }

@@ -15,9 +15,9 @@ namespace BoxTicketApi.DAL.Repositories
         {
         }
 
-        public Task<UserAccount> GetUserByEmailAsync(string email)
+        public async Task<UserAccount> GetUserByEmailAsync(string email)
         {
-            return _context.UserAccounts.Where(u => u.Email == email).FirstOrDefaultAsync()!;
+            return await _context.UserAccounts.Where(u => u.Email == email).FirstOrDefaultAsync()!;
         }
     }
 }
