@@ -23,9 +23,25 @@ builder.Services.AddDbContext<BoxTicketContext>(options =>
 });
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<PerformanceRepository>();
+builder.Services.AddScoped<TicketOptionsRepository>();
+builder.Services.AddScoped<TicketsRepository>();
+builder.Services.AddScoped<AuthorRepository>();
+builder.Services.AddScoped<GenreRepository>();
+
+builder.Services.AddScoped<ITicketRepository,TicketsRepository>();
+builder.Services.AddScoped<ITicketOptionsRepository, TicketOptionsRepository>();
+
+
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPerformanceService, PerformanceService>();
+builder.Services.AddScoped<ITicketOptionsService, TicketOptionsService>();
+builder.Services.AddScoped<ITicketService, TicketService>();
+builder.Services.AddScoped<IAuthorService, AuthorService>();
+builder.Services.AddScoped<IGenreService, GenreService>();
+
+
+
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -71,6 +87,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseErrorHandlingMiddleware();
 
 app.UseHttpsRedirection();
 

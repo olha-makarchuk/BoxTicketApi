@@ -132,11 +132,6 @@ public partial class BoxTicketContext : DbContext
                 .HasForeignKey(d => d.IdAllTickets)
                 .HasConstraintName("FK_Ticket_AllTickets");
 
-            entity.HasOne(d => d.IdPerformanceNavigation).WithMany(p => p.Tickets)
-                .HasForeignKey(d => d.IdPerformance)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Ticket_Performance");
-
             entity.HasOne(d => d.IdStatusNavigation).WithMany(p => p.Tickets)
                 .HasForeignKey(d => d.IdStatus)
                 .OnDelete(DeleteBehavior.ClientSetNull)
