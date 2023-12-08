@@ -6,7 +6,13 @@ using System.Threading.Tasks;
 
 namespace BoxTicketApi.BLL.Requests.Author
 {
-    internal class AuthorRequest
+    public class AuthorRequest
     {
+        public string FirstName { get; set; } = null!;
+
+        public string MiddleName { get; set; } = null!;
+
+        public string LastName { get; set; } = null!;
+
     }
 }

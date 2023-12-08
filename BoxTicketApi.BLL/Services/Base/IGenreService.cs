@@ -1,4 +1,5 @@
-﻿using BoxTicketApi.BLL.Responses.Genre;
+﻿using BoxTicketApi.BLL.Requests.Genre;
+using BoxTicketApi.BLL.Responses.Genre;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +11,6 @@ namespace BoxTicketApi.BLL.Services.Base
     public interface IGenreService
     {
         Task<List<GenreResponse>> GetAllGenre();
+        Task<GenreResponse> AddGenre(GenreRequest request);
     }
 }

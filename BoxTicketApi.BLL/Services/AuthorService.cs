@@ -1,4 +1,5 @@
-﻿using BoxTicketApi.BLL.Responses.Author;
+﻿using BoxTicketApi.BLL.Requests.Author;
+using BoxTicketApi.BLL.Responses.Author;
 using BoxTicketApi.BLL.Responses.Genre;
 using BoxTicketApi.BLL.Services.Base;
 using BoxTicketApi.DAL.Entities;
@@ -17,6 +18,14 @@ namespace BoxTicketApi.BLL.Services
         public AuthorService(AuthorRepository authorRepository)
         {
             _authorRepository = authorRepository;
+        }
+
+        public async Task<AuthorResponse> AddAuthor(AuthorRequest request)
+        {
+            Author author = new() { FirstName = request.FirstName, LastName = request.LastName, MiddleName = request.MiddleName };
+            await _authorRepository.AddAsync(author);
+            AuthorResponse response = new() {Id=author.Id, MiddleName = request.MiddleName, LastName = request.LastName, FirstName = request.FirstName };
+            return response;
         }
 
         public async Task<List<AuthorResponse>> GetAllAuthor()

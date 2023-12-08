@@ -27,15 +27,16 @@ namespace BoxTicketApi.BLL.Services
             _config = configuration;
         }
 
-        public async Task<TicketIdResponse> BookTicket(TicketReqest reqest)
-        {
-            var boughtTicket = await _ticketRepository.GetBoughtSeatsByType(reqest.IdPerformance, reqest.IdTicketOptions);
+        public async Task<TicketIdResponse> BookTicket(TicketReqest reqest, int IdPerformance)
+        { 
+            var boughtTicket = await _ticketRepository.GetBoughtSeatsByType(IdPerformance, reqest.IdTicketOptions);
             
             if(boughtTicket.Count == 0)
             {
                 Ticket ticket = new Ticket();
                 ticket.IdAllTickets = reqest.IdTicketOptions;
                 ticket.SeatNumber = reqest.SeatNumber;
+                ticket.IdUser = reqest.IdUser;
                 ticket.IdStatus = 2;
 
                 await _ticketRepository.AddAsync(ticket);
@@ -50,15 +51,16 @@ namespace BoxTicketApi.BLL.Services
             }
         }
 
-        public async Task<TicketIdResponse> BuyTicket(TicketReqest reqest)
+        public async Task<TicketIdResponse> BuyTicket(TicketReqest reqest, int IdPerformance)
         {
-            var boughtTicket = await _ticketRepository.GetBoughtSeatsByType(reqest.IdPerformance, reqest.IdTicketOptions);
+            var boughtTicket = await _ticketRepository.GetBoughtSeatsByType(IdPerformance, reqest.IdTicketOptions);
 
             if (boughtTicket.Count == 0)
             {
                 Ticket ticket = new Ticket();
                 ticket.IdAllTickets = reqest.IdTicketOptions;
                 ticket.SeatNumber = reqest.SeatNumber;
+                ticket.IdUser = reqest.IdUser;
                 ticket.IdStatus = 1;
 
                 await _ticketRepository.AddAsync(ticket);

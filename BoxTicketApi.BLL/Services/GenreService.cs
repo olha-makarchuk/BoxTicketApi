@@ -1,5 +1,7 @@
-﻿using BoxTicketApi.BLL.Responses.Genre;
+﻿using BoxTicketApi.BLL.Requests.Genre;
+using BoxTicketApi.BLL.Responses.Genre;
 using BoxTicketApi.BLL.Services.Base;
+using BoxTicketApi.DAL.Entities;
 using BoxTicketApi.DAL.Repositories;
 using System;
 using System.Collections.Generic;
@@ -15,6 +17,14 @@ namespace BoxTicketApi.BLL.Services
         public GenreService(GenreRepository genreRepository)
         {
             _genreRepository = genreRepository;
+        }
+
+        public async Task<GenreResponse> AddGenre(GenreRequest request)
+        {
+            Genre genre= new() { NameGenre = request.Name};
+            await _genreRepository.AddAsync(genre);
+            GenreResponse response = new() { Id = genre.Id, NameGenre=request.Name};
+            return response;
         }
 
         public async Task<List<GenreResponse>> GetAllGenre()

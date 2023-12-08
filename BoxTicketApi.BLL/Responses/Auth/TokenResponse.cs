@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace BoxTicketApi.BLL.Responses.Auth
 {
-    public class AuthResponse
+    public class TokenResponse
     {
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
+        public string AccessToken { get; set; } = string.Empty;
     }
 }

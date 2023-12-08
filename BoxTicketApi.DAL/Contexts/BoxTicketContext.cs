@@ -23,6 +23,7 @@ public partial class BoxTicketContext : DbContext
     public virtual DbSet<Genre> Genres { get; set; }
 
     public virtual DbSet<Performance> Performances { get; set; }
+    public virtual DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
 
     public virtual DbSet<RoleUser> RoleUsers { get; set; }
 
@@ -98,6 +99,24 @@ public partial class BoxTicketContext : DbContext
             entity.HasOne(d => d.IdGenreNavigation).WithMany(p => p.Performances)
                 .HasForeignKey(d => d.IdGenre)
                 .HasConstraintName("FK_Performance_Genre");
+        });
+
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_IdRefreshToken");
+
+            entity.ToTable("RefreshToken");
+
+            entity.Property(e => e.Expires).HasColumnType("datetime");
+
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+
+            entity.Property(e => e.Token).IsUnicode(false);
+
+            entity.HasOne(d => d.IdUserNavigation)
+                .WithMany()
+                .HasForeignKey(d => d.IdUser)
+                .HasConstraintName("FK_RefreshToken_UserAccount");
         });
 
         modelBuilder.Entity<RoleUser>(entity =>

@@ -12,5 +12,6 @@ namespace BoxTicketApi.BLL.Services.Base
     public interface ITicketOptionsService
     {
         Task<List<OptionsResponse>> GetAllAvailableTickets(GetOptionsRequest request);
+        Task<int> GetIdPerformanceInOption(int idOption);
     }
 }

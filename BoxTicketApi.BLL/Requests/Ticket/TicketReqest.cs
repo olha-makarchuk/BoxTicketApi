@@ -14,8 +14,6 @@ namespace BoxTicketApi.BLL.Requests.Ticket
 
         public int IdTicketOptions { get; set; }
 
-        public int IdPerformance { get; set; }
-
         public int SeatNumber { get; set; }
     }
 }

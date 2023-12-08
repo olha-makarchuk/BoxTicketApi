@@ -63,5 +63,12 @@ namespace BoxTicketApi.BLL.Services
                 throw new Exception($"Квитків з id={request.IdPerformance} не знайдено");
             }
         }
+
+        public async Task<int> GetIdPerformanceInOption(int idOption)
+        {
+            var option =  await _ticketOptionsRepository.GetByIdAsync(idOption);
+
+            return option.IdPerformance;
+        }
     }
 }

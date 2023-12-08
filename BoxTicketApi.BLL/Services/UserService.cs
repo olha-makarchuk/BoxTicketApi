@@ -5,6 +5,7 @@ using BoxTicketApi.BLL.Requests.Auth;
 using BoxTicketApi.BLL.Responses.Auth;
 using BoxTicketApi.BLL.Services.Base;
 using BoxTicketApi.DAL.Contexts;
+using BoxTicketApi.DAL.Entities;
 using BoxTicketApi.DAL.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -26,24 +27,25 @@ namespace BoxTicketApi.BLL.Services
 {
     public class UserService : IUserService
     {
-        private UserAccount user = new(); 
-        private UserRepository _repository;
+        private UserRepository _userRepository;
+        private RefreshTokenRepository _refreshTokenRepository;
         private IConfiguration _config;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         //private readonly IMapper _mapper;
-        public UserService(UserRepository repository, IConfiguration config/*, IMapper mapper*/, IHttpContextAccessor httpContextAccessor)
+        public UserService(UserRepository repository, IConfiguration config/*, IMapper mapper*/, IHttpContextAccessor httpContextAccessor, RefreshTokenRepository refreshTokenRepository)
         {
-            _repository = repository;
+            _userRepository = repository;
             _config = config;
             _httpContextAccessor = httpContextAccessor;
+            _refreshTokenRepository = refreshTokenRepository;
             //_mapper = mapper;
         }
 
 
         public async Task<AuthResponse> RegisterUserAsync(SignUpRequest request)
         {
-            var existingUser = await _repository.GetUserByEmailAsync(request.Email);
+            var existingUser = await _userRepository.GetUserByEmailAsync(request.Email);
 
             if (existingUser != null)
             {
@@ -52,6 +54,7 @@ namespace BoxTicketApi.BLL.Services
 
             CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
 
+            UserAccount user = new();
             user.FirstName = request.FirstName;
             user.MiddleName = request.MiddleName;
             user.LastName = request.LastName;
@@ -59,15 +62,43 @@ namespace BoxTicketApi.BLL.Services
             user.IdRole = 2;
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
-            await _repository.AddAsync(user);
+            await _userRepository.AddAsync(user);
+
+            await _refreshTokenRepository.AddAsync(new RefreshToken { IdUser = user.Id});
 
             AuthResponse response = new();
+            response.Email = request.Email;
+            response.Password = request.Password;
+
             return response;
         }
 
-        public async Task<AuthResponse> Login(SignInRequest request)
+        public async Task<TokenResponse> RefreshToken(string refreshToken, int idUser)
         {
-            var existingUser = await _repository.GetUserByEmailAsync(request.Email);
+            var tokenUser = await _refreshTokenRepository.GetRefreshTokenByUser(idUser);
+            var existingUser = await _userRepository.GetByIdAsync(idUser);
+
+            if (tokenUser.Token != refreshToken)
+            {
+                throw new Exception("Invalid Refresh Token.");
+            }
+            else if (tokenUser.Expires < DateTime.Now)
+            {
+                throw new Exception("Token expired.");
+            }
+
+            string token = CreateToken(existingUser!, existingUser.IdRoleNavigation.NameRole);
+            await GenerateRefreshToken(idUser);
+
+            TokenResponse response = new();
+            response.AccessToken = token;
+
+            return response;
+        }
+
+        public async Task<TokenResponse> Login(SignInRequest request)
+        {
+            var existingUser = await _userRepository.GetUserByEmailAsync(request.Email);
 
             if (existingUser == null)
             {
@@ -79,12 +110,32 @@ namespace BoxTicketApi.BLL.Services
                 throw new Exception("Wrong password.");
             }
 
-            string token = CreateToken(existingUser, "Standart");
+            string token = CreateToken(existingUser, existingUser.IdRoleNavigation.NameRole);
             SetCookie("UserId", existingUser.Id.ToString());
 
-            AuthResponse response = new();
+            await GenerateRefreshToken(existingUser.Id);
+
+            TokenResponse response = new();
             response.AccessToken = token;
+
             return response;
+        }
+
+        private async Task GenerateRefreshToken(int idUser)
+        {
+            var refreshToken = await _refreshTokenRepository.GetRefreshTokenByUser(idUser);
+
+            refreshToken.Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+            refreshToken.Expires = DateTime.Now.AddDays(1);
+
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = refreshToken.Expires
+            };
+            _httpContextAccessor.HttpContext.Response.Cookies.Append("refreshToken", refreshToken.Token, cookieOptions);
+
+            await _refreshTokenRepository.UpdateAsync(refreshToken);
         }
 
         private string CreateToken(UserAccount user, string role)
@@ -97,8 +148,7 @@ namespace BoxTicketApi.BLL.Services
                 new Claim(ClaimTypes.Role, role),
             };
 
-            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
-                _config.GetSection("AppSettings:Token").Value));
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_config.GetSection("AppSettings:Token").Value));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 

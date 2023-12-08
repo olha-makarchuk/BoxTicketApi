@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace BoxTicketApi.BLL.Requests.Genre
 {
-    internal class GenreRequest
+    public class GenreRequest
     {
+        public string? Name {  get; set; }
     }
 }

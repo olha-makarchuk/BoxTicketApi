@@ -16,5 +16,6 @@ namespace BoxTicketApi.BLL.Services.Base
         Task<List<PerformanceResponse>> GetPerformancesByGenre(PerformancesByGenreRequest request);
         Task<List<PerformanceResponse>> GetPerformancesByName(PerformancesByNameRequest request);
         Task<List<PerformanceResponse>> GetPerformancesByDate(PerformancesByDateRequest request);
+        Task<PerformanceResponse> AddPerformance(PerformanceRequest request);
     }
 }
