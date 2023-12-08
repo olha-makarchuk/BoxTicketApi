@@ -1,6 +1,7 @@
 ﻿using BoxTicketApi.BLL.Requests.Ticket;
 using BoxTicketApi.BLL.Services;
 using BoxTicketApi.BLL.Services.Base;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -11,42 +12,52 @@ namespace BoxTicketApi.Controllers
     public class TicketController : Controller
     {
         private ITicketService _ticketService;
+        private ITicketOptionsService _ticketOptionsService;
         private readonly IConfiguration _config;
 
-        public TicketController(ITicketService ticketService, IConfiguration configuration) 
+        public TicketController(ITicketService ticketService, IConfiguration configuration, ITicketOptionsService ticketOptionsService) 
         {
+            _ticketOptionsService = ticketOptionsService;
             _ticketService = ticketService;
             _config = configuration;
         }
 
-        [HttpPost("Book")]
+        [HttpPost("Book"), Authorize(Roles = "User")]
         public async Task<IActionResult> BookTicket(TicketReqest request)
         {
             if (Request.Cookies.TryGetValue("UserId", out string userId))
             {
                 request.IdUser = Convert.ToInt32(userId);
-
-                var result = await _ticketService.BookTicket(request);
-                return Ok(result);
+                
+                var idPer =  await _ticketOptionsService.GetIdPerformanceInOption(request.IdTicketOptions);
+                if (idPer != 0)
+                {
+                    var result = await _ticketService.BookTicket(request, idPer);
+                    return Ok(result);
+                }
             }
-            return BadRequest();
+            throw new Exception($"Tcket with TicketOption id={request.IdTicketOptions} not found.");
         }
 
-        [HttpPost("Buy")]
+        [HttpPost("Buy"), Authorize(Roles = "User")]
         public async Task<IActionResult> BuyTicket(TicketReqest request)
         {
             if (Request.Cookies.TryGetValue("UserId", out string userId))
             {
                 request.IdUser = Convert.ToInt32(userId);
 
-                var result = await _ticketService.BookTicket(request);
-                return Ok(result);
+                var idPer = await _ticketOptionsService.GetIdPerformanceInOption(request.IdTicketOptions);
+                if (idPer != 0)
+                {
+                    var result = await _ticketService.BuyTicket(request, idPer);
+                    return Ok(result);
+                }
             }
             return BadRequest();
         }
 
 
-        [HttpPost("BuyBooked")]
+        [HttpPost("BuyBooked"), Authorize(Roles = "User")]
         public async Task<IActionResult> BuyBookedTicket(TicketByIdReqest request)
         {
             if (Request.Cookies.TryGetValue("UserId", out string userId))
@@ -60,7 +71,7 @@ namespace BoxTicketApi.Controllers
         }
 
 
-        [HttpGet("MyTickets")]
+        [HttpGet("MyTickets"), Authorize(Roles = "User")]
         public async Task<IActionResult> GetMyTickets()
         {
             if (Request.Cookies.TryGetValue("UserId", out string userId))

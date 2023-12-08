@@ -3,6 +3,7 @@ using BoxTicketApi.BLL.Requests.Performance;
 using BoxTicketApi.BLL.Services;
 using BoxTicketApi.BLL.Services.Base;
 using BoxTicketApi.DAL.Contexts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -21,7 +22,7 @@ namespace BoxTicketApi.Controllers
             _performanceService = performanceService;
         }
 
-        [HttpPost("PerformancesByDate")]
+        [HttpPost("GetByDate")]
         public async Task<IActionResult> GetPerformancesByDate(string date)//рік-день-місяць
         {
             PerformancesByDateRequest request = new();
@@ -32,7 +33,7 @@ namespace BoxTicketApi.Controllers
             return Ok(result);
         }
 
-        [HttpPost("PerformancesByAuthor")]
+        [HttpPost("GetByAuthor")]
         public async Task<IActionResult> GetPerformancesByAuthor(PerformancesByAuthorRequest request)
         {
             var result = await _performanceService.GetPerformancesByAuthor(request);
@@ -40,7 +41,7 @@ namespace BoxTicketApi.Controllers
             return Ok(result);
         }
 
-        [HttpPost("PerformancesByGenre")]
+        [HttpPost("GetByGenre")]
         public async Task<IActionResult> GetPerformancesByGenre(PerformancesByGenreRequest request)
         {
             var result = await _performanceService.GetPerformancesByGenre(request);
@@ -48,7 +49,7 @@ namespace BoxTicketApi.Controllers
             return Ok(result);
         }
 
-        [HttpPost("PerformancesByName")]
+        [HttpPost("GetByName")]
         public async Task<IActionResult> GetPerformancesByName(PerformancesByNameRequest request)
         {
             var result = await _performanceService.GetPerformancesByName(request);
@@ -56,12 +57,19 @@ namespace BoxTicketApi.Controllers
             return Ok(result);
         }
 
-        [HttpPost("AllPerformances")]
+        [HttpGet("GetAll")]
         public async Task<IActionResult> GetAllPerformances()
         {
             var result = await _performanceService.GetAllPerformances();
             return Ok(result);
         }
 
+
+        [HttpPost("Add"), Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AddPerformances(PerformanceRequest request)
+        {
+            var result = await _performanceService.AddPerformance(request);
+            return Ok(result);
+        }
     }
 }

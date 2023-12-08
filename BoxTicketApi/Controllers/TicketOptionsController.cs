@@ -19,8 +19,8 @@ namespace BoxTicketApi.Controllers
             _config = configuration;
         }
         
-        [HttpPost("AvaillableTicket")]
-        public async Task<IActionResult> BookTicket(GetOptionsRequest request)
+        [HttpPost("AvaillableTickets")]
+        public async Task<IActionResult> GetAvaillableTickets(GetOptionsRequest request)
         {
             var result = await _ticketOptionsService.GetAllAvailableTickets(request);
             return Ok(result);
