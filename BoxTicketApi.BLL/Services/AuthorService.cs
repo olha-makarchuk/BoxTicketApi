@@ -1,4 +1,5 @@
-﻿using BoxTicketApi.BLL.Requests.Author;
+﻿using AutoMapper;
+using BoxTicketApi.BLL.Requests.Author;
 using BoxTicketApi.BLL.Responses.Author;
 using BoxTicketApi.BLL.Responses.Genre;
 using BoxTicketApi.BLL.Services.Base;
@@ -15,8 +16,10 @@ namespace BoxTicketApi.BLL.Services
     public class AuthorService : IAuthorService
     {
         private AuthorRepository _authorRepository;
-        public AuthorService(AuthorRepository authorRepository)
+        private readonly IMapper _mapper;
+        public AuthorService(AuthorRepository authorRepository, IMapper mapper)
         {
+            _mapper = mapper;
             _authorRepository = authorRepository;
         }
 
@@ -24,26 +27,15 @@ namespace BoxTicketApi.BLL.Services
         {
             Author author = new() { FirstName = request.FirstName, LastName = request.LastName, MiddleName = request.MiddleName };
             await _authorRepository.AddAsync(author);
-            AuthorResponse response = new() {Id=author.Id, MiddleName = request.MiddleName, LastName = request.LastName, FirstName = request.FirstName };
-            return response;
+
+            return _mapper.Map<AuthorResponse>(author);
         }
 
         public async Task<List<AuthorResponse>> GetAllAuthor()
         {
             var authors = await _authorRepository.GetAllAsync();
-            List<AuthorResponse> responseList = new();
 
-            foreach (var author in authors)
-            {
-                AuthorResponse response = new AuthorResponse();
-                response.Id = author.Id;
-                response.FirstName = author.FirstName;
-                response.LastName = author.LastName;
-                response.MiddleName = author.MiddleName;
-
-                responseList.Add(response);
-            }
-            return responseList;
+            return _mapper.Map<List<AuthorResponse>>(authors);
         }
     }
 }

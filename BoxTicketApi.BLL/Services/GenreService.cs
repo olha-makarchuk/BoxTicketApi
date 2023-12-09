@@ -1,4 +1,5 @@
-﻿using BoxTicketApi.BLL.Requests.Genre;
+﻿using AutoMapper;
+using BoxTicketApi.BLL.Requests.Genre;
 using BoxTicketApi.BLL.Responses.Genre;
 using BoxTicketApi.BLL.Services.Base;
 using BoxTicketApi.DAL.Entities;
@@ -14,8 +15,11 @@ namespace BoxTicketApi.BLL.Services
     public class GenreService : IGenreService
     {
         private GenreRepository _genreRepository;
-        public GenreService(GenreRepository genreRepository)
+        private readonly IMapper _mapper;
+
+        public GenreService(GenreRepository genreRepository, IMapper mapper)
         {
+            _mapper = mapper;
             _genreRepository = genreRepository;
         }
 
@@ -23,24 +27,15 @@ namespace BoxTicketApi.BLL.Services
         {
             Genre genre= new() { NameGenre = request.Name};
             await _genreRepository.AddAsync(genre);
-            GenreResponse response = new() { Id = genre.Id, NameGenre=request.Name};
-            return response;
+
+            return _mapper.Map<GenreResponse>(genre); ;
         }
 
         public async Task<List<GenreResponse>> GetAllGenre()
         {
             var genres = await _genreRepository.GetAllAsync();
-            List<GenreResponse> responseList = new();
-
-            foreach (var genre in genres)
-            {
-                GenreResponse response = new GenreResponse();
-                response.Id = genre.Id;
-                response.NameGenre = genre.NameGenre;
-
-                responseList.Add(response);
-            }
-            return responseList;
+            
+            return _mapper.Map<List<GenreResponse>>(genres); ;
         }
     }
 }

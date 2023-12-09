@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace BoxTicketApi.DAL.Repositories
 {
     public class PerformanceRepository : GenericRepository<Performance>, IPerformanceRepository
@@ -16,15 +17,6 @@ namespace BoxTicketApi.DAL.Repositories
         {
         }
 
-        public Task<List<Performance>> GetPerformancesByAuthor(int idAuthor)
-        {
-            var performances = _context.Performances
-                .Where(p => p.IdAuthor == idAuthor)
-                .Include(p => p.IdGenreNavigation)
-                .Include(p => p.IdAuthorNavigation)
-                .ToListAsync();
-            return performances;
-        }
 
         public Task<List<Performance>> GetPerformancesByDate(DateTime date)
         {
@@ -48,11 +40,24 @@ namespace BoxTicketApi.DAL.Repositories
 
         public async Task<List<Performance>> GetPerformancesByName(string name)
         {
-            var performances = await _context.Performances
-                .Where(p => p.PerformanceName == name)
-                .Include(p => p.IdGenreNavigation)
-                .Include(p => p.IdAuthorNavigation)
-                .ToListAsync();
+            List < Performance > performances = new();
+                performances = await _context.Performances
+                    .Where(p => p.PerformanceName == name)
+                    .Include(p => p.IdGenreNavigation)
+                    .Include(p => p.IdAuthorNavigation)
+                    .ToListAsync();
+            return performances;
+        }
+
+
+        public async Task<List<Performance>> GetPerformancesByAuthor(int idAuthor)
+        {
+            List<Performance> performances = new();
+            performances = await _context.Performances
+                   .Where(p => p.IdAuthor == idAuthor)
+                   .Include(p => p.IdGenreNavigation)
+                   .Include(p => p.IdAuthorNavigation)
+                   .ToListAsync();
             return performances;
         }
     }

@@ -1,4 +1,5 @@
-﻿using BoxTicketApi.BLL.Requests.TicketOptions;
+﻿using AutoMapper;
+using BoxTicketApi.BLL.Requests.TicketOptions;
 using BoxTicketApi.BLL.Responses.TicketOptions;
 using BoxTicketApi.BLL.Services.Base;
 using BoxTicketApi.DAL.Entities;
@@ -18,10 +19,11 @@ namespace BoxTicketApi.BLL.Services
     {
         private ITicketOptionsRepository _ticketOptionsRepository;
         private readonly IConfiguration _config;
+        private readonly IMapper _mapper;
 
-
-        public TicketOptionsService(ITicketOptionsRepository ticketOptionsRepository, IConfiguration configuration)
+        public TicketOptionsService(ITicketOptionsRepository ticketOptionsRepository, IConfiguration configuration, IMapper mapper)
         {
+            _mapper = mapper;
             _config = configuration;
             _ticketOptionsRepository = ticketOptionsRepository;
         }
@@ -47,14 +49,10 @@ namespace BoxTicketApi.BLL.Services
                         seats.Remove(seat);
                     }
 
-                    OptionsResponse response = new();
-                    response.Id = tickets.Id;
-                    response.NamePerformance = tickets.IdPerformanceNavigation.PerformanceName;
-                    response.Price = tickets.Price;
-                    response.CountOfSeats = tickets.CoutOfTickets;
-                    response.TypeName = tickets.IdTypeNavigation.TypeName;
-                    response.Seats = seats;
-                    responseList.Add(response);
+                    var maper = _mapper.Map<OptionsResponse>(tickets);
+                    maper.Seats = seats;
+
+                    responseList.Add(maper);
                 }
                 return responseList;
             }
@@ -68,7 +66,7 @@ namespace BoxTicketApi.BLL.Services
         {
             var option =  await _ticketOptionsRepository.GetByIdAsync(idOption);
 
-            return option.IdPerformance;
+            return _mapper.Map<int>(option.IdPerformance);
         }
     }
 }

@@ -10,17 +10,22 @@ using BoxTicketApi.DAL.Repositories.Base;
 using BoxTicketApi.DAL.Contexts;
 using Microsoft.EntityFrameworkCore;
 using BoxTicketApi;
+using BoxTicketApi.BLL.Mapper;
+using AutoMapper;
+using Microsoft.AspNetCore.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
-
+//builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 // Add services to the container.
+
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 builder.Services.AddControllers();
 builder.Services.AddDbContext<BoxTicketContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetSection
-        ("ConnectionString: DefaultConnection").Value);
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<PerformanceRepository>();
 builder.Services.AddScoped<TicketOptionsRepository>();
@@ -30,7 +35,7 @@ builder.Services.AddScoped<GenreRepository>();
 builder.Services.AddScoped<RefreshTokenRepository>();
 
 builder.Services.AddScoped<ITicketOptionsRepository, TicketOptionsRepository>();
-builder.Services.AddScoped<ITicketRepository,TicketsRepository>();
+builder.Services.AddScoped<ITicketRepository, TicketsRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
 builder.Services.AddScoped<IUserService, UserService>();
@@ -76,6 +81,7 @@ builder.Services.AddCors(options => options.AddPolicy(name: "NgOrigins",
         policy.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader();
     }));
 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -88,6 +94,8 @@ if (app.Environment.IsDevelopment())
 app.UseErrorHandlingMiddleware();
 
 app.UseHttpsRedirection();
+
+app.UseRouting();
 
 app.UseAuthentication();
 

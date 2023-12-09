@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 
 namespace BoxTicketApi.DAL.Repositories.Base
 {
-    public interface IRefreshTokenRepository : IGenericRepository<RefreshToken>
+    public interface IGenreRepository : IGenericRepository<Genre>
     {
-        Task<RefreshToken> GetRefreshTokenByUser(int idUser);
     }
 }
