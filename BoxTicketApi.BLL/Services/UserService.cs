@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Azure;
 using Azure.Core;
 using BoxTicketApi.BLL.Requests.Auth;
 using BoxTicketApi.BLL.Responses.Auth;
@@ -7,39 +6,28 @@ using BoxTicketApi.BLL.Services.Base;
 using BoxTicketApi.DAL.Contexts;
 using BoxTicketApi.DAL.Entities;
 using BoxTicketApi.DAL.Repositories;
+using BoxTicketApi.DAL.Repositories.Base;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BoxTicketApi.BLL.Services
 {
     public class UserService : IUserService
     {
-        private UserRepository _userRepository;
-        private RefreshTokenRepository _refreshTokenRepository;
+        private IUserRepository _userRepository;
+        private IRefreshTokenRepository _refreshTokenRepository;
         private IConfiguration _config;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
-        //private readonly IMapper _mapper;
-        public UserService(UserRepository repository, IConfiguration config/*, IMapper mapper*/, IHttpContextAccessor httpContextAccessor, RefreshTokenRepository refreshTokenRepository)
+        private readonly IMapper _mapper;
+        public UserService(IUserRepository repository, IConfiguration config, IMapper mapper, IRefreshTokenRepository refreshTokenRepository)
         {
             _userRepository = repository;
             _config = config;
-            _httpContextAccessor = httpContextAccessor;
             _refreshTokenRepository = refreshTokenRepository;
-            //_mapper = mapper;
+            _mapper = mapper;
         }
 
 
@@ -66,11 +54,7 @@ namespace BoxTicketApi.BLL.Services
 
             await _refreshTokenRepository.AddAsync(new RefreshToken { IdUser = user.Id});
 
-            AuthResponse response = new();
-            response.Email = request.Email;
-            response.Password = request.Password;
-
-            return response;
+            return _mapper.Map<AuthResponse>(request);
         }
 
         public async Task<TokenResponse> RefreshToken(string refreshToken, int idUser)
@@ -87,11 +71,9 @@ namespace BoxTicketApi.BLL.Services
                 throw new Exception("Token expired.");
             }
 
-            string token = CreateToken(existingUser!, existingUser.IdRoleNavigation.NameRole);
-            await GenerateRefreshToken(idUser);
-
             TokenResponse response = new();
-            response.AccessToken = token;
+            response.AccessToken = CreateToken(existingUser!, existingUser.IdRoleNavigation.NameRole);
+            await GenerateRefreshToken(idUser);
 
             return response;
         }
@@ -110,32 +92,24 @@ namespace BoxTicketApi.BLL.Services
                 throw new Exception("Wrong password.");
             }
 
-            string token = CreateToken(existingUser, existingUser.IdRoleNavigation.NameRole);
-            SetCookie("UserId", existingUser.Id.ToString());
-
-            await GenerateRefreshToken(existingUser.Id);
-
             TokenResponse response = new();
-            response.AccessToken = token;
+            response.AccessToken = CreateToken(existingUser, existingUser.IdRoleNavigation.NameRole);
+            response.UserId = existingUser.Id;
+            response.date = await GenerateRefreshToken(existingUser.Id);
 
             return response;
         }
 
-        private async Task GenerateRefreshToken(int idUser)
+        private async Task<DateTime> GenerateRefreshToken(int idUser)
         {
             var refreshToken = await _refreshTokenRepository.GetRefreshTokenByUser(idUser);
 
             refreshToken.Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
             refreshToken.Expires = DateTime.Now.AddDays(1);
 
-            var cookieOptions = new CookieOptions
-            {
-                HttpOnly = true,
-                Expires = refreshToken.Expires
-            };
-            _httpContextAccessor.HttpContext.Response.Cookies.Append("refreshToken", refreshToken.Token, cookieOptions);
-
             await _refreshTokenRepository.UpdateAsync(refreshToken);
+
+            return refreshToken.Expires.Value;
         }
 
         private string CreateToken(UserAccount user, string role)
@@ -160,19 +134,6 @@ namespace BoxTicketApi.BLL.Services
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
 
             return jwt;
-        }
-
-        private void SetCookie(string key, string value)
-        {
-            var cookieOptions = new CookieOptions
-            {
-                Expires = DateTime.UtcNow.AddDays(1),
-                HttpOnly = true,
-                SameSite = SameSiteMode.Strict,
-                Secure = true
-            };
-
-            _httpContextAccessor.HttpContext.Response.Cookies.Append(key, value, cookieOptions);
         }
 
         private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)

@@ -1,4 +1,8 @@
 ﻿using AutoMapper;
+using BoxTicketApi.BLL.Requests.Auth;
+using BoxTicketApi.BLL.Requests.Genre;
+using BoxTicketApi.BLL.Requests.Performance;
+using BoxTicketApi.BLL.Requests.Ticket;
 using BoxTicketApi.BLL.Responses.Auth;
 using BoxTicketApi.BLL.Responses.Author;
 using BoxTicketApi.BLL.Responses.Genre;
@@ -21,11 +25,31 @@ namespace BoxTicketApi.BLL.Mapper
         {
             CreateMap<Author, AuthorResponse>();
             CreateMap<Genre, GenreResponse>();
+            CreateMap<GenreRequest, Genre>();
+
             CreateMap<Performance, PerformanceResponse>();
-            CreateMap<AllTicket, OptionsResponse>();
-            CreateMap<AllTicket, OptionsResponse>();
-            CreateMap<Ticket, TicketIdResponse>();
-            CreateMap<int, TicketIdResponse>();
+            CreateMap<PerformanceRequest, Performance>();
+
+            CreateMap<AllTicket, OptionsResponse>()
+                .ForMember(dest => dest.NamePerformance, opt => opt.MapFrom(scr => scr.IdPerformanceNavigation.PerformanceName))
+                .ForMember(dest => dest.TypeName, opt => opt.MapFrom(scr => scr.IdTypeNavigation.TypeName));
+
+            CreateMap<Ticket, TicketIdResponse>()
+                .ForMember(dest => dest.idTicket, opt => opt.MapFrom(scr => scr.Id));
+            CreateMap<TicketByIdReqest, TicketIdResponse>();
+
+            CreateMap<Ticket, TicketResponse>()
+                .ForMember(dest => dest.IdTicketOptions, opt => opt.MapFrom(scr => scr.IdAllTickets))
+                .ForMember(dest => dest.IdPerformance, opt => opt.MapFrom(scr => scr.IdAllTicketsNavigation.IdPerformance))
+                .ForMember(dest => dest.Performance, opt => opt.MapFrom(scr => scr.IdAllTicketsNavigation.IdPerformanceNavigation.PerformanceName))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(scr => scr.IdStatusNavigation.StatusName))
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(scr => scr.IdAllTicketsNavigation.Price));
+
+            CreateMap<SignUpRequest, AuthResponse>();
+            CreateMap<SignUpRequest, TokenResponse>();
+            CreateMap<Ticket, TicketIdResponse>()
+            .ForMember(dest => dest.idTicket, opt => opt.MapFrom(src => src.Id));
+
         }
     }
 }

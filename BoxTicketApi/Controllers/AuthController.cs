@@ -4,8 +4,10 @@ using BoxTicketApi.BLL.Responses.Auth;
 using BoxTicketApi.BLL.Services;
 using BoxTicketApi.BLL.Services.Base;
 using BoxTicketApi.DAL.Contexts;
+using BoxTicketApi.DAL.Entities;
 using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
@@ -41,6 +43,14 @@ namespace BoxTicketApi.Controllers
         public async Task<ActionResult<string>> Login(SignInRequest request)
         {
             var result = await _userService.Login(request);
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = result.date,
+                Secure = true
+            };
+            Response.Cookies.Append("UserId", result.UserId.ToString(), cookieOptions);
+            Response.Cookies.Append("refreshToken", result.AccessToken, cookieOptions);
 
             return Ok(result);
         }

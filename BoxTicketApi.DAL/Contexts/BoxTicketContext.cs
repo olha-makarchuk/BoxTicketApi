@@ -37,8 +37,8 @@ public partial class BoxTicketContext : DbContext
     public virtual DbSet<UserAccount> UserAccounts { get; set; }
 
     
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Name=ConnectionString");
+    //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+      //  => optionsBuilder.UseSqlServer("Name=ConnectionString");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

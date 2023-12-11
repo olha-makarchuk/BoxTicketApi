@@ -20,21 +20,19 @@ namespace BoxTicketApi.BLL.Services
     public class TicketService : ITicketService
     {
         private ITicketRepository _ticketRepository;
-        private readonly IConfiguration _config;
         private readonly IMapper _mapper;
 
-        public TicketService(ITicketRepository ticketRepository, IMapper mapper, IConfiguration configuration)
+        public TicketService(ITicketRepository ticketRepository, IMapper mapper)
         {
             _mapper = mapper;
             _ticketRepository = ticketRepository;
-            _config = configuration;
         }
 
         public async Task<TicketIdResponse> BookTicket(TicketReqest reqest, int IdPerformance)
         { 
             var boughtTicket = await _ticketRepository.GetBoughtSeatsByType(IdPerformance, reqest.IdTicketOptions);
             
-            if(boughtTicket.Count == 0)
+            if(!boughtTicket.Contains(reqest.SeatNumber))
             {
                 Ticket ticket = new Ticket();
                 ticket.IdAllTickets = reqest.IdTicketOptions;
@@ -55,7 +53,7 @@ namespace BoxTicketApi.BLL.Services
         {
             var boughtTicket = await _ticketRepository.GetBoughtSeatsByType(IdPerformance, reqest.IdTicketOptions);
 
-            if (boughtTicket.Count == 0)
+            if (!boughtTicket.Contains(reqest.SeatNumber))
             {
                 Ticket ticket = new Ticket();
                 ticket.IdAllTickets = reqest.IdTicketOptions;
@@ -83,7 +81,7 @@ namespace BoxTicketApi.BLL.Services
                 {
                     var ticketNew = await _ticketRepository.GetByIdAsync(reqest.Id);
                     ticketNew.IdStatus = 1;
-                    await _ticketRepository.UpdateAsync(ticket);
+                    await _ticketRepository.UpdateAsync(ticketNew);
 
                     return _mapper.Map<TicketIdResponse>(ticketNew);
                 }
@@ -108,9 +106,7 @@ namespace BoxTicketApi.BLL.Services
                 if (ticket.IdUser == reqest.IdUser)
                 {
                     await _ticketRepository.DeleteAsync(reqest.Id);
-
-                    return reqest.Id;
-                    //return _mapper.Map<int>(reqest);
+                    return _mapper.Map<TicketIdResponse>(reqest);
                 }
                 else
                 {
@@ -127,22 +123,7 @@ namespace BoxTicketApi.BLL.Services
         {
             var tickets = await _ticketRepository.GetAllTicketsById(idUser);
 
-            List<TicketResponse> responseList = new();
-            foreach (var ticket in tickets)
-            {
-                TicketResponse response = new();
-                response.Id = ticket.Id;
-                response.IdUser = ticket.IdUser;
-                response.IdTicketOptions = ticket.IdAllTickets;
-                response.IdPerformance = ticket.IdAllTicketsNavigation.IdPerformance;
-                response.Performance = ticket.IdAllTicketsNavigation.IdPerformanceNavigation.PerformanceName;
-                response.Status = ticket.IdStatusNavigation.StatusName;
-                response.Price = ticket.IdAllTicketsNavigation.Price;
-                response.SeatNumber = ticket.SeatNumber;
-
-                responseList.Add(response);
-            }
-            return responseList;
+            return _mapper.Map<List<TicketResponse>>(tickets);
         }
     }
 }

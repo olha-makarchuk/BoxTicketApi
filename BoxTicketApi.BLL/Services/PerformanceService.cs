@@ -5,6 +5,7 @@ using BoxTicketApi.BLL.Responses.Performance;
 using BoxTicketApi.BLL.Services.Base;
 using BoxTicketApi.DAL.Entities;
 using BoxTicketApi.DAL.Repositories;
+using BoxTicketApi.DAL.Repositories.Base;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,11 +17,11 @@ namespace BoxTicketApi.BLL.Services
     public class PerformanceService : IPerformanceService
     {
         private readonly IMapper _mapper;
-        private PerformanceRepository _performanceRepository;
-        private AuthorRepository _authorRepository;
-        private GenreRepository _genreRepository;
+        private IPerformanceRepository _performanceRepository;
+        private IAuthorRepository _authorRepository;
+        private IGenreRepository _genreRepository;
 
-        public PerformanceService(IMapper mapper, PerformanceRepository repository, AuthorRepository authorRepository, GenreRepository genreRepository)
+        public PerformanceService(IMapper mapper, IPerformanceRepository repository, IAuthorRepository authorRepository, IGenreRepository genreRepository)
         {
             _mapper = mapper;
             _authorRepository = authorRepository;
@@ -42,7 +43,7 @@ namespace BoxTicketApi.BLL.Services
                 throw new Exception($"Genre with id {request.IdGenre} not found");
             }
 
-            Performance performance = new() { IdAuthor = request.IdAuthor, DateTimeEvent = request.DateTimeEvent, IdGenre = request.IdGenre, PerformanceName = request.PerformanceName };
+            var performance = _mapper.Map<Performance>(request);
             await _performanceRepository.AddAsync(performance);
 
             return _mapper.Map<PerformanceResponse>(performance);

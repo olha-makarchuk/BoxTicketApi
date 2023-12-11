@@ -8,6 +8,6 @@ namespace BoxTicketApi.BLL.Requests.Genre
 {
     public class GenreRequest
     {
-        public string? Name {  get; set; }
+        public string? NameGenre {  get; set; }
     }
 }

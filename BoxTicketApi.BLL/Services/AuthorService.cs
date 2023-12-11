@@ -5,6 +5,7 @@ using BoxTicketApi.BLL.Responses.Genre;
 using BoxTicketApi.BLL.Services.Base;
 using BoxTicketApi.DAL.Entities;
 using BoxTicketApi.DAL.Repositories;
+using BoxTicketApi.DAL.Repositories.Base;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,9 +16,9 @@ namespace BoxTicketApi.BLL.Services
 {
     public class AuthorService : IAuthorService
     {
-        private AuthorRepository _authorRepository;
+        private IAuthorRepository _authorRepository;
         private readonly IMapper _mapper;
-        public AuthorService(AuthorRepository authorRepository, IMapper mapper)
+        public AuthorService(IAuthorRepository authorRepository, IMapper mapper)
         {
             _mapper = mapper;
             _authorRepository = authorRepository;
@@ -27,8 +28,8 @@ namespace BoxTicketApi.BLL.Services
         {
             Author author = new() { FirstName = request.FirstName, LastName = request.LastName, MiddleName = request.MiddleName };
             await _authorRepository.AddAsync(author);
-
-            return _mapper.Map<AuthorResponse>(author);
+            var a = _mapper.Map<AuthorResponse>(author);
+            return a;
         }
 
         public async Task<List<AuthorResponse>> GetAllAuthor()

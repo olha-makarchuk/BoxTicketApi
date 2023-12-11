@@ -12,7 +12,7 @@ namespace BoxTicketApi.BLL.Responses.TicketOptions
         public string NamePerformance { get; set; }
         public string TypeName {  get; set; }
         public int Price { get; set; }
-        public int CountOfSeats { get; set; }
+        public int CoutOfTickets { get; set; }
 
         public List<int> Seats { get; set; }=new();
     }

@@ -18,13 +18,11 @@ namespace BoxTicketApi.BLL.Services
     public class TicketOptionsService : ITicketOptionsService
     {
         private ITicketOptionsRepository _ticketOptionsRepository;
-        private readonly IConfiguration _config;
         private readonly IMapper _mapper;
 
-        public TicketOptionsService(ITicketOptionsRepository ticketOptionsRepository, IConfiguration configuration, IMapper mapper)
+        public TicketOptionsService(ITicketOptionsRepository ticketOptionsRepository, IMapper mapper)
         {
             _mapper = mapper;
-            _config = configuration;
             _ticketOptionsRepository = ticketOptionsRepository;
         }
 
@@ -64,9 +62,10 @@ namespace BoxTicketApi.BLL.Services
 
         public async Task<int> GetIdPerformanceInOption(int idOption)
         {
-            var option =  await _ticketOptionsRepository.GetByIdAsync(idOption);
+            var option =  await _ticketOptionsRepository.GetByIdAsync(idOption)!
+                     ?? throw new Exception($"No Option with Id {idOption}");
 
-            return _mapper.Map<int>(option.IdPerformance);
+            return option.IdPerformance;
         }
     }
 }
