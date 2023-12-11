@@ -21,13 +21,10 @@ namespace BoxTicketApi.Controllers
     [ApiController]
     public class AuthController : Controller
     {
-        public static UserAccount user = new UserAccount();
-        private readonly IConfiguration _configuration;
         private readonly IUserService _userService;
 
-        public AuthController(IConfiguration configuration, IUserService userService)
+        public AuthController(IUserService userService)
         {
-            _configuration = configuration;
             _userService = userService;
         }
 

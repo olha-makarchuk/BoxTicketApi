@@ -1,18 +1,24 @@
 ﻿using AutoMapper;
 using Azure.Core;
+using BoxTicketApi.BLL.Mapper;
 using BoxTicketApi.BLL.Requests.Auth;
+using BoxTicketApi.BLL.Requests.Genre;
 using BoxTicketApi.BLL.Responses.Auth;
+using BoxTicketApi.BLL.Responses.Genre;
 using BoxTicketApi.BLL.Services;
 using BoxTicketApi.BLL.Services.Base;
 using BoxTicketApi.DAL.Contexts;
 using BoxTicketApi.DAL.Entities;
 using BoxTicketApi.DAL.Repositories.Base;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Moq;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Security.Policy;
 using System.Text;
@@ -27,7 +33,7 @@ namespace BoxTicketApi.Test.BLL.Tests
         private readonly Mock<IRefreshTokenRepository> _refreshTokenRepositoryMock = new();
         private readonly Mock<IConfiguration> _configMock = new();
         private UserService _userService = null!;
-
+        
         [Fact]
         public async Task RegisterUserAsync_WhenUserDoesNotExist_ReturnsAuthResponse()
         {
@@ -64,8 +70,7 @@ namespace BoxTicketApi.Test.BLL.Tests
             {
                 IdUser = 1
             };
-
-            _userService = new UserService(_userRepositoryMock.Object, _configMock.Object, _mapperMock.Object, _refreshTokenRepositoryMock.Object);
+            var jwtHandlerMock = new Mock<JwtSecurityTokenHandler>();
             _userRepositoryMock.Setup(repo => repo.GetUserByEmailAsync(signUpRequest.Email))
                 .ReturnsAsync((UserAccount)null);
             _userRepositoryMock.Setup(repo => repo.AddAsync(It.IsAny<UserAccount>()))
@@ -76,7 +81,7 @@ namespace BoxTicketApi.Test.BLL.Tests
                 .Returns(Task.CompletedTask);
             _mapperMock.Setup(m => m.Map<AuthResponse>(signUpRequest))
                 .Returns(authResponse);
-            _userService = new UserService(_userRepositoryMock.Object, _configMock.Object, _mapperMock.Object, _refreshTokenRepositoryMock.Object);
+            _userService = new UserService(_userRepositoryMock.Object, _configMock.Object, _mapperMock.Object, _refreshTokenRepositoryMock.Object, jwtHandlerMock.Object);
 
             var result = await _userService.RegisterUserAsync(signUpRequest);
 
@@ -108,10 +113,10 @@ namespace BoxTicketApi.Test.BLL.Tests
                 PasswordSalt = hash,
                 IdRole = 1
             };
-
+            var jwtHandlerMock = new Mock<JwtSecurityTokenHandler>();
             _userRepositoryMock.Setup(repo => repo.GetUserByEmailAsync(signUpRequest.Email))
                 .ReturnsAsync(existingUser);
-            _userService = new UserService(_userRepositoryMock.Object, _configMock.Object, _mapperMock.Object, _refreshTokenRepositoryMock.Object);
+            _userService = new UserService(_userRepositoryMock.Object, _configMock.Object, _mapperMock.Object, _refreshTokenRepositoryMock.Object, jwtHandlerMock.Object);
 
             var exception = await Assert.ThrowsAsync<Exception>(async () => await _userService.RegisterUserAsync(signUpRequest));
             Assert.Equal("User already exists.", exception.Message);
@@ -144,18 +149,21 @@ namespace BoxTicketApi.Test.BLL.Tests
                 Email = "email",
                 IdRoleNavigation = role
             };
+            var jwtHandlerMock = new Mock<JwtSecurityTokenHandler>();
+            jwtHandlerMock.Setup(x => x.WriteToken(It.IsAny<SecurityToken>()))
+                .Returns("MockedJWTToken");
             _configMock.Setup(x => x.GetSection("AppSettings:Token").Value).Returns("your_token_value");
             _refreshTokenRepositoryMock.Setup(repo => repo.GetRefreshTokenByUser(userId))
                 .ReturnsAsync(tokenUser);
             _userRepositoryMock.Setup(repo => repo.GetByIdAsync(userId))
                 .ReturnsAsync(existingUser);
-            _userService = new UserService(_userRepositoryMock.Object, _configMock.Object, _mapperMock.Object, _refreshTokenRepositoryMock.Object);
+            _userService = new UserService(_userRepositoryMock.Object, _configMock.Object, _mapperMock.Object, _refreshTokenRepositoryMock.Object, jwtHandlerMock.Object);
 
             var result = await _userService.RefreshToken(refreshToken, userId);
 
             Assert.NotNull(result);
         }
-
+        
         [Fact]
         public async Task RefreshToken_WhenInvalidRefreshToken_ReturnsExeption()
         {
@@ -178,11 +186,12 @@ namespace BoxTicketApi.Test.BLL.Tests
             {
                 Id = userId
             };
+            var jwtHandlerMock = new Mock<JwtSecurityTokenHandler>();
             _refreshTokenRepositoryMock.Setup(repo => repo.GetRefreshTokenByUser(userId))
                 .ReturnsAsync(tokenUserValid);
             _userRepositoryMock.Setup(repo => repo.GetByIdAsync(userId))
                 .ReturnsAsync(existingUser);
-            _userService = new UserService(_userRepositoryMock.Object, _configMock.Object, _mapperMock.Object, _refreshTokenRepositoryMock.Object);
+            _userService = new UserService(_userRepositoryMock.Object, _configMock.Object, _mapperMock.Object, _refreshTokenRepositoryMock.Object, jwtHandlerMock.Object);
 
             var exception = await Assert.ThrowsAsync<Exception>(async () => await _userService.RefreshToken(refreshTokenInvalid, userId));
 
@@ -205,11 +214,12 @@ namespace BoxTicketApi.Test.BLL.Tests
             {
                 Id = userId
             };
+            var jwtHandlerMock = new Mock<JwtSecurityTokenHandler>();
             _refreshTokenRepositoryMock.Setup(repo => repo.GetRefreshTokenByUser(userId))
                 .ReturnsAsync(tokenUserValid);
             _userRepositoryMock.Setup(repo => repo.GetByIdAsync(userId))
                 .ReturnsAsync(existingUser);
-            _userService = new UserService(_userRepositoryMock.Object, _configMock.Object, _mapperMock.Object, _refreshTokenRepositoryMock.Object);
+            _userService = new UserService(_userRepositoryMock.Object, _configMock.Object, _mapperMock.Object, _refreshTokenRepositoryMock.Object, jwtHandlerMock.Object);
 
             var exception = await Assert.ThrowsAsync<Exception>(async () => await _userService.RefreshToken(refreshToken, userId));
 
@@ -258,17 +268,13 @@ namespace BoxTicketApi.Test.BLL.Tests
                 Token = tokenUser,
                 Expires = DateTime.Now.AddDays(1)
             };
+            var jwtHandlerMock = new Mock<JwtSecurityTokenHandler>();
             _configMock.Setup(x => x.GetSection("AppSettings:Token").Value).Returns("your_token_value");
             _userRepositoryMock.Setup(repo => repo.GetUserByEmailAsync(signInRequest.Email))
                 .ReturnsAsync(existingUser);
             _refreshTokenRepositoryMock.Setup(repo => repo.GetRefreshTokenByUser(idUser))
                 .ReturnsAsync(token);
-            _refreshTokenRepositoryMock.Setup(repo => repo.UpdateAsync(It.IsAny<RefreshToken>()))
-                .Callback<RefreshToken>(token =>
-                {
-                    token.Token = tokenUpdate;
-                });
-            _userService = new UserService(_userRepositoryMock.Object, _configMock.Object, _mapperMock.Object, _refreshTokenRepositoryMock.Object);
+            _userService = new UserService(_userRepositoryMock.Object, _configMock.Object, _mapperMock.Object, _refreshTokenRepositoryMock.Object, jwtHandlerMock.Object);
 
             var result = await _userService.Login(signInRequest);
 
@@ -318,18 +324,14 @@ namespace BoxTicketApi.Test.BLL.Tests
                 Token = tokenUser,
                 Expires = DateTime.Now.AddDays(1)
             };
-            UserAccount userNull= null;
+            var jwtHandlerMock = new Mock<JwtSecurityTokenHandler>();
+            UserAccount userNull = null;
             _configMock.Setup(x => x.GetSection("AppSettings:Token").Value).Returns("your_token_value");
             _userRepositoryMock.Setup(repo => repo.GetUserByEmailAsync(signInRequest.Email))
                 .ReturnsAsync(userNull);
             _refreshTokenRepositoryMock.Setup(repo => repo.GetRefreshTokenByUser(idUser))
                 .ReturnsAsync(token);
-            _refreshTokenRepositoryMock.Setup(repo => repo.UpdateAsync(It.IsAny<RefreshToken>()))
-                .Callback<RefreshToken>(token =>
-                {
-                    token.Token = tokenUpdate;
-                });
-            _userService = new UserService(_userRepositoryMock.Object, _configMock.Object, _mapperMock.Object, _refreshTokenRepositoryMock.Object);
+            _userService = new UserService(_userRepositoryMock.Object, _configMock.Object, _mapperMock.Object, _refreshTokenRepositoryMock.Object, jwtHandlerMock.Object);
 
             var exception = await Assert.ThrowsAsync<Exception>(async () => await _userService.Login(signInRequest));
 
@@ -355,6 +357,7 @@ namespace BoxTicketApi.Test.BLL.Tests
             }
             var signInRequest = new SignInRequest
             {
+                Id = idUser,
                 Email = "email",
                 Password = passwordInvalid
             };
@@ -380,13 +383,13 @@ namespace BoxTicketApi.Test.BLL.Tests
                 Token = tokenUser,
                 Expires = DateTime.Now.AddDays(1)
             };
+            var jwtHandlerMock = new Mock<JwtSecurityTokenHandler>();
             _configMock.Setup(x => x.GetSection("AppSettings:Token").Value).Returns("your_token_value");
             _userRepositoryMock.Setup(repo => repo.GetUserByEmailAsync(signInRequest.Email))
                 .ReturnsAsync(existingUser);
             _refreshTokenRepositoryMock.Setup(repo => repo.GetRefreshTokenByUser(idUser))
                 .ReturnsAsync(token);
-            
-            _userService = new UserService(_userRepositoryMock.Object, _configMock.Object, _mapperMock.Object, _refreshTokenRepositoryMock.Object);
+            _userService = new UserService(_userRepositoryMock.Object, _configMock.Object, _mapperMock.Object, _refreshTokenRepositoryMock.Object, jwtHandlerMock.Object);
 
             var exception = await Assert.ThrowsAsync<Exception>(async () => await _userService.Login(signInRequest));
 

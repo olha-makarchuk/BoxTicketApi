@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="AsyncEnumerator" Version="4.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
@@ -31,6 +32,7 @@
   <ItemGroup>
     <ProjectReference Include="..\BoxTicketApi.BLL\BoxTicketApi.BLL.csproj" />
     <ProjectReference Include="..\BoxTicketApi.DAL\BoxTicketApi.DAL.csproj" />
+    <ProjectReference Include="..\BoxTicketApi\BoxTicketApi.csproj" />
   </ItemGroup>
 
 </Project>

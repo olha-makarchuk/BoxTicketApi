@@ -22,8 +22,11 @@ namespace BoxTicketApi.BLL.Services
         private IRefreshTokenRepository _refreshTokenRepository;
         private IConfiguration _config;
         private readonly IMapper _mapper;
-        public UserService(IUserRepository repository, IConfiguration config, IMapper mapper, IRefreshTokenRepository refreshTokenRepository)
+        private JwtSecurityTokenHandler _jwtSecurityToken;
+
+        public UserService(IUserRepository repository, IConfiguration config, IMapper mapper, IRefreshTokenRepository refreshTokenRepository, JwtSecurityTokenHandler jwtSecurityToken)
         {
+            _jwtSecurityToken = jwtSecurityToken;
             _userRepository = repository;
             _config = config;
             _refreshTokenRepository = refreshTokenRepository;
@@ -131,7 +134,7 @@ namespace BoxTicketApi.BLL.Services
                 expires: DateTime.Now.AddDays(1),
                 signingCredentials: creds);
 
-            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+            var jwt = _jwtSecurityToken.WriteToken(token);
 
             return jwt;
         }

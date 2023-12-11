@@ -11,12 +11,10 @@ namespace BoxTicketApi.Controllers
     {
         
         private ITicketOptionsService _ticketOptionsService;
-        private readonly IConfiguration _config;
 
-        public TicketOptionsController(ITicketOptionsService ticketOptionsService, IConfiguration configuration)
+        public TicketOptionsController(ITicketOptionsService ticketOptionsService)
         {
             _ticketOptionsService = ticketOptionsService;
-            _config = configuration;
         }
         
         [HttpPost("AvaillableTickets")]

@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BoxTicketApi.BLL.Requests.TicketOptions;
 using BoxTicketApi.DAL.Entities;
+using BoxTicketApi.BLL.Mapper;
 
 namespace BoxTicketApi.Test.BLL.Tests
 {
@@ -45,6 +46,10 @@ namespace BoxTicketApi.Test.BLL.Tests
                     return new OptionsResponse
                     {
                         Id = ticketOptions.IdType,
+                        CoutOfTickets =30,
+                        NamePerformance="PerformanceName",
+                        Price =100,
+                        TypeName ="type"
                     };
                 });
 

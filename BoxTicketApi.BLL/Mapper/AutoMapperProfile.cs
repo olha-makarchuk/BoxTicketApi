@@ -24,10 +24,13 @@ namespace BoxTicketApi.BLL.Mapper
         public AutoMapperProfile()
         {
             CreateMap<Author, AuthorResponse>();
+
             CreateMap<Genre, GenreResponse>();
+
             CreateMap<GenreRequest, Genre>();
 
             CreateMap<Performance, PerformanceResponse>();
+
             CreateMap<PerformanceRequest, Performance>();
 
             CreateMap<AllTicket, OptionsResponse>()
@@ -36,6 +39,7 @@ namespace BoxTicketApi.BLL.Mapper
 
             CreateMap<Ticket, TicketIdResponse>()
                 .ForMember(dest => dest.idTicket, opt => opt.MapFrom(scr => scr.Id));
+
             CreateMap<TicketByIdReqest, TicketIdResponse>();
 
             CreateMap<Ticket, TicketResponse>()
@@ -46,7 +50,9 @@ namespace BoxTicketApi.BLL.Mapper
                 .ForMember(dest => dest.Price, opt => opt.MapFrom(scr => scr.IdAllTicketsNavigation.Price));
 
             CreateMap<SignUpRequest, AuthResponse>();
+
             CreateMap<SignUpRequest, TokenResponse>();
+
             CreateMap<Ticket, TicketIdResponse>()
             .ForMember(dest => dest.idTicket, opt => opt.MapFrom(src => src.Id));
 

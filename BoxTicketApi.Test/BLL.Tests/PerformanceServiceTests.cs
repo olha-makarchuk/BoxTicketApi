@@ -7,6 +7,7 @@ using BoxTicketApi.BLL.Services;
 using BoxTicketApi.DAL.Entities;
 using BoxTicketApi.DAL.Repositories.Base;
 using Moq;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -140,11 +141,12 @@ namespace BoxTicketApi.Test.BLL.Tests
         }
 
         [Fact]
-        public async Task GetPerformancesByDate_ShouldReturnPerformances()
+        public async Task GetPerformancesByDate_WhenValidDate_ShouldReturnPerformances()
         {
             List<Performance> performancesList = new List<Performance>();
             performancesList.Add(performance);
-            var requestByDate = new PerformancesByDateRequest() { dateTime = new DateTime(2023,12,1)};
+            var requestByDate = new PerformancesByDateRequest();
+            requestByDate.Date = "2023-02-02";
             expectedPerformances.Add(expectedPerformance);
             _mapperMock.Setup(m => m.Map<List<PerformanceResponse>>(It.IsAny<List<Performance>>()))
                 .Returns(expectedPerformances);
@@ -157,6 +159,19 @@ namespace BoxTicketApi.Test.BLL.Tests
 
             Assert.NotNull(performances);
             Assert.Single(performances);
+        }
+
+        [Fact]
+        public void Date_Setter_ShouldSetDateTime()
+        {
+            // Arrange
+            var dateTime = new DateTime(2023, 12, 10);
+            var requestByDate = new PerformancesByDateRequest();
+
+
+            // Assert
+            var exception = Assert.Throws<Exception>(() => requestByDate.Date = "2023-13-13");
+            Assert.Equal("Неправильний формат дати. Використовуйте формат 'рік-день-місяць'.", exception.Message);
         }
 
         [Fact]

@@ -14,11 +14,9 @@ namespace BoxTicketApi.Controllers
     public class PerformanceController : Controller
     {
         private readonly IPerformanceService _performanceService;
-        private readonly IConfiguration _configuration;
 
-        public PerformanceController(IConfiguration configuration, IPerformanceService performanceService)
+        public PerformanceController(IPerformanceService performanceService)
         {
-            _configuration = configuration;
             _performanceService = performanceService;
         }
 
