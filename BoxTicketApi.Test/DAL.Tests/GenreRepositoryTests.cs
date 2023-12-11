@@ -9,7 +9,7 @@ using BoxTicketApi.Test.DAL.Test;
 using Xunit;
 using BoxTicketApi.DAL.Entities;
 
-namespace BoxTicketApi.Test.DAL
+namespace BoxTicketApi.Test.DAL.Test
 {
     public class GenreRepositoryTests: IClassFixture<DatabaseFixture>
     {

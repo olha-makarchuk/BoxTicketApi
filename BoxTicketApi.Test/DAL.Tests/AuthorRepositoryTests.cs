@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BoxTicketApi.Test.DAL
+namespace BoxTicketApi.Test.DAL.Test
 {
     public class AuthorRepositoryTests : IClassFixture<DatabaseFixture>
     {

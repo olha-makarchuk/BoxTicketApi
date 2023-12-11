@@ -29,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BoxTicketApi.BLL\BoxTicketApi.BLL.csproj" />
     <ProjectReference Include="..\BoxTicketApi.DAL\BoxTicketApi.DAL.csproj" />
   </ItemGroup>
 

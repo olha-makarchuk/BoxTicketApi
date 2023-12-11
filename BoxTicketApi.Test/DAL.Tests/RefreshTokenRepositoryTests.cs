@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BoxTicketApi.DAL.Entities;
 
-namespace BoxTicketApi.Test.DAL
+namespace BoxTicketApi.Test.DAL.Test
 {
     public class RefreshTokenRepositoryTests : IClassFixture<DatabaseFixture>
     {

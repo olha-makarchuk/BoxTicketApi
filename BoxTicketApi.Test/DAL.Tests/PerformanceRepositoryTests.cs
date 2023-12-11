@@ -16,7 +16,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace BoxTicketApi.Test.DAL
+namespace BoxTicketApi.Test.DAL.Test
 {
     public class PerformanceRepositoryTests : IClassFixture<DatabaseFixture>
     {
