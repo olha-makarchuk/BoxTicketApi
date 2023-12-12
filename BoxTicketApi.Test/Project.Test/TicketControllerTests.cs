@@ -53,7 +53,7 @@ namespace BoxTicketApi.Test.Project.Test
             var Result = Assert.IsType<OkObjectResult>(returnedResult);
             Assert.NotNull(Result.Value);
         }
-
+       
         [Fact]
         public async Task BookTicket_ReturnExeption()
         {

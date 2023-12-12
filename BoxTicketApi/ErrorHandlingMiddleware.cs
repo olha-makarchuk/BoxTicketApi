@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BoxTicketApi
 {
@@ -28,6 +29,7 @@ namespace BoxTicketApi
         }
     }
 
+    [ExcludeFromCodeCoverage]
     public static class ErrorHandlingMiddlewareExtensions
     {
         public static IApplicationBuilder UseErrorHandlingMiddleware(this IApplicationBuilder builder)

@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore;
 using BoxTicketApi;
 using BoxTicketApi.BLL.Mapper;
 using BoxTicketApi.DAL;
+using System.Diagnostics.CodeAnalysis;
+using System.IdentityModel.Tokens.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,13 +32,14 @@ builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IAuthorService, AuthorService>();
 builder.Services.AddScoped<IGenreService, GenreService>();
 
-builder.Services.AddScoped<UserRepository>();
-builder.Services.AddScoped<PerformanceRepository>();
-builder.Services.AddScoped<TicketOptionsRepository>();
-builder.Services.AddScoped<TicketsRepository>();
-builder.Services.AddScoped<AuthorRepository>();
-builder.Services.AddScoped<GenreRepository>();
-builder.Services.AddScoped<RefreshTokenRepository>();
+builder.Services.AddScoped<IUserRepository,UserRepository>();
+//builder.Services.AddScoped<IRefreshTokenRepository, UserRepository>();
+builder.Services.AddScoped<IPerformanceRepository, PerformanceRepository>();
+builder.Services.AddScoped<ITicketOptionsRepository,TicketOptionsRepository>();
+builder.Services.AddScoped<ITicketRepository,TicketsRepository>();
+builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
+builder.Services.AddScoped<IGenreRepository, GenreRepository>();
+builder.Services.AddScoped<IRefreshTokenRepository,RefreshTokenRepository>();
 builder.Services.AddScoped<ITicketOptionsRepository, TicketOptionsRepository>();
 builder.Services.AddScoped<ITicketRepository, TicketsRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
@@ -44,6 +47,12 @@ builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddSingleton<JwtSecurityTokenHandler>(serviceProvider =>
+{
+    return new JwtSecurityTokenHandler();
+});
+
 
 builder.Services.AddSwaggerGen(options =>
 {

@@ -20,9 +20,9 @@ namespace BoxTicketApi.BLL.Services
     {
         private IUserRepository _userRepository;
         private IRefreshTokenRepository _refreshTokenRepository;
-        private IConfiguration _config;
+        private readonly IConfiguration _config;
         private readonly IMapper _mapper;
-        private JwtSecurityTokenHandler _jwtSecurityToken;
+        private readonly JwtSecurityTokenHandler _jwtSecurityToken;
 
         public UserService(IUserRepository repository, IConfiguration config, IMapper mapper, IRefreshTokenRepository refreshTokenRepository, JwtSecurityTokenHandler jwtSecurityToken)
         {
