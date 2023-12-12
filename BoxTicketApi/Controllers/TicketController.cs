@@ -55,7 +55,7 @@ namespace BoxTicketApi.Controllers
         }
 
 
-        [HttpPost("BuyBooked"), Authorize(Roles = "User")]
+        [HttpPut("BuyBooked"), Authorize(Roles = "User")]
         public async Task<IActionResult> BuyBookedTicket(TicketByIdReqest request)
         {
             if (Request.Cookies.TryGetValue("UserId", out string userId))
@@ -76,6 +76,17 @@ namespace BoxTicketApi.Controllers
                 id = Convert.ToInt32(userId);
             }
             var result = await _ticketService.GetAllTickets(id);
+            return Ok(result);
+        }
+
+        [HttpDelete("CancelBookedTicket"), Authorize(Roles = "User")]
+        public async Task<IActionResult> CancelBookedTicket(TicketByIdReqest request)
+        {
+            if (Request.Cookies.TryGetValue("UserId", out string userId))
+            {
+                request.IdUser = Convert.ToInt32(userId);
+            }
+            var result = await _ticketService.CancelBookedTicket(request);
             return Ok(result);
         }
 

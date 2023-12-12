@@ -3,6 +3,7 @@ using BoxTicketApi.BLL.Requests.Auth;
 using BoxTicketApi.BLL.Requests.Genre;
 using BoxTicketApi.BLL.Requests.Performance;
 using BoxTicketApi.BLL.Requests.Ticket;
+using BoxTicketApi.BLL.Requests.TicketOptions;
 using BoxTicketApi.BLL.Responses.Auth;
 using BoxTicketApi.BLL.Responses.Author;
 using BoxTicketApi.BLL.Responses.Genre;
@@ -25,11 +26,13 @@ namespace BoxTicketApi.BLL.Mapper
         {
             CreateMap<Author, AuthorResponse>();
 
-            CreateMap<Genre, GenreResponse>();
+            CreateMap<Genre, GenreResponse>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(scr => scr.Id));
 
             CreateMap<GenreRequest, Genre>();
 
-            CreateMap<Performance, PerformanceResponse>();
+            CreateMap<Performance, PerformanceResponse>()
+                .ForMember(dest => dest.IdPerformance, opt => opt.MapFrom(scr => scr.Id));
 
             CreateMap<PerformanceRequest, Performance>();
 
