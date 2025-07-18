@@ -10,9 +10,9 @@ This project implements an information system for managing a theatre playbill an
 
 ## 🛠️ Technologies Used
 
-- **.NET 8**
+- **.NET 9**
 - **ASP.NET Core**
-- **Entity Framework Core 8.0**
+- **Entity Framework Core 9.0**
 - **SQL Server**
 - **xUnit** (for testing)
 - **AutoMapper**
